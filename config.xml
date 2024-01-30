@@ -1,8 +1,0 @@
-<?xml version = "1.0"?>
-    <connection type = "PostgreSQL">
-        <host>localhost</host>
-        <port>5432</port>
-        <database>gestion_flotte</database>
-        <user>mamisoa</user>
-        <password>prom15</password>
-    </connection>
