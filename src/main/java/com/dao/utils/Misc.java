@@ -13,18 +13,6 @@ public class Misc {
         return string.replace("\n", "\n\t");
     }
 
-    public static String getTemplateLocation(){
-        return currentLocation("template");
-    }
-
-    public static String getSourceTemplateLocation(){
-        return getTemplateLocation() + File.separator + "sourceCode";
-    }
-
-    public static String getViewTemplateLocation(){
-        return getTemplateLocation() + File.separator + "view";
-    }
-
     public static String getConfigLocation(){
         return currentLocation("conf");
     }
@@ -32,10 +20,5 @@ public class Misc {
     public static String getConnectionConfLocation(){
         String separator = File.separator;
         return getConfigLocation() + separator + "connection";
-    }
-
-    public static String getGeneratorConfLocation(){
-        String separator = File.separator;
-        return getConfigLocation() + separator + "generator";
     }
 }

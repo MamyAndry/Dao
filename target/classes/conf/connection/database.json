@@ -1,7 +1,7 @@
 {
     "listConnection": {
         "DefaultConnection": {
-            "datasource":"jdbc:postgresql://localhost:5432/dokotera",
+            "datasource":"jdbc:postgresql://localhost:5432/district",
             "username":"mamisoa",
             "password":"prom15",
             "databaseType":"POSTGRESQL"

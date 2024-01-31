@@ -11,6 +11,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 /**
@@ -155,6 +156,13 @@ public class ObjectUtility {
         } else {
             return false;
         }
+    }
+
+    public static boolean isStringNumeric(String str) throws Exception{
+        Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+        if(str == null)
+            return false;
+        return pattern.matcher(str).matches();
     }
 
     public static Object getPrimitiveDefaultValue(Class<?> type) {

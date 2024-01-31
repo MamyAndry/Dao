@@ -98,7 +98,6 @@ public class DaoUtility {
     public static List<Field> getColumnFields( Class<?> objClass, Field[] fields) throws Exception{
         List<Field> lst = getColumnFields(objClass);
         for( Field l : lst ){
-//            System.out.println("flflfllflflfl ::: " + l.getName() + " ;;;;; " + f.getName());
             for( Field f : fields ){
                 if( l.getName().equals( f.getName() ) ){
                     l.setAccessible(false);
@@ -111,14 +110,12 @@ public class DaoUtility {
     
     public static List<Field> getAllColumnFields(Object obj) throws Exception{
         List<Field> lst = new ArrayList<>();
-        lst.add(getPrimaryKeyField(obj));
         lst.addAll(getColumnFields(obj.getClass()));
         return lst;
     }
     
     public static List<Field> getAllColumnFields(Object obj, Field[] fields) throws Exception{
         List<Field> lst = new ArrayList<>();
-        lst.add(getPrimaryKeyField(obj));
         lst.addAll(getColumnFields(obj.getClass(), fields));
         return lst;
     }
@@ -326,7 +323,6 @@ public class DaoUtility {
     public static List<Method> getAllSettersMethod(Object obj) throws Exception{
         Class<?> objClass = obj.getClass();
         List<Method> res = new ArrayList<>();
-        res.add(getPrimaryKeySetMethod(obj));
         res.addAll(getSettersMethod(objClass));
         objClass = objClass.getSuperclass();
         return res;

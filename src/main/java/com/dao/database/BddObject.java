@@ -119,7 +119,7 @@ public class BddObject  {
                 state = true;
             }
             String query = "INSERT INTO " + this.getTableName() + DaoUtility.getListColumns(this)+" VALUES " + this.getValues(con, "DefaultConnection");
-            System.out.println(query);
+            // System.out.println(query);
             PreparedStatement stmt =  con.prepareStatement(query);
             stmt.executeUpdate();
         }finally {
@@ -178,7 +178,7 @@ public class BddObject  {
                 state = true;
             }
             String query = "DELETE FROM " + this.getTableName() + " WHERE " + condition;
-            System.out.println(query);
+            // System.out.println(query);
             PreparedStatement stmt = con.prepareStatement(query);
             stmt.executeUpdate();
         }finally {
@@ -259,7 +259,7 @@ public class BddObject  {
             }
             String query = "UPDATE "+ this.getTableName() +" SET " + this.updatedValues();
             query += " WHERE " + this.getPrimaryKeyName() +" = '" + DaoUtility.getPrimaryKeyGetMethod(this).invoke( this, (Object[]) null)+"'";
-            System.out.println(query);
+            // System.out.println(query);
             PreparedStatement stmt = con.prepareStatement(query);
             stmt.executeUpdate();
         }finally{
@@ -282,12 +282,11 @@ public class BddObject  {
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName();
-            System.out.println(query);
+            // System.out.println(query);
             List<T> list = this.fetch(con, query);
-            if(state == true) con.close();
             return list;
         }finally {
-                if(state == true) con.close();
+            if(state == true) con.close();
         }
     }
     
@@ -327,10 +326,12 @@ public class BddObject  {
                 con = new DbConnection().connect();
                 state = true;
             }
-            
             String condition = DaoUtility.getPrimaryKeyName(this) + " = '" + id + "'";
             T obj = (T) this.findWhere(con, condition).get(0);
             return (T) obj;
+        }catch( Exception e ){
+            e.printStackTrace();
+            throw e;
         }
         finally {
             if(state == true) con.close();
@@ -400,6 +401,7 @@ public class BddObject  {
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName() + " WHERE " + condition;
+            System.out.println(query);
             List<T> lst = this.fetch(con, query);
             return lst;
         }finally {
@@ -450,7 +452,7 @@ public class BddObject  {
             ResultSet rs = stmt.executeQuery();
             List<Field> fields = DaoUtility.getAllColumnFields(this);
             List<Method> methods = DaoUtility.getAllSettersMethod(this);
-            List<String> columns = DaoUtility.getTableColumns(this.getTableName());
+            List<String> columns = DaoUtility.getTableColumns(con, this.getTableName());
             while( rs.next() ){
                 T now = this.convertToObject(con, rs, fields, methods, obj, columns);
                 list.add(now);
@@ -476,9 +478,8 @@ public class BddObject  {
         List<Field> fields = ( this.getForeignSameFields() != null ) 
                 ? DaoUtility.getAllColumnFields(this, this.getForeignSameFields()) 
                 : DaoUtility.getAllColumnFields(this);
-//        List<Field> fields = DaoUtility.getAllColumnFields(this);
         List<Method> methods = DaoUtility.getAllSettersMethod(this);
-        List<String> columns = DaoUtility.getTableColumns(this.getTableName());
+        List<String> columns = DaoUtility.getTableColumns(con, this.getTableName());
         while( rs.next() ){
             T now = this.convertToObject(con, rs, fields, methods, columns);
             list.add(now);
@@ -535,6 +536,7 @@ public class BddObject  {
                 if(DaoUtility.getName(fields.get(i)).equals(column)  && fields.get(i).canAccess(object)){
                     Method method = methods.get(i);
                     Object value = resultSet.getObject(column);
+                    // System.out.println("methods : "+method+" value : "+value);
                     if(fields.get(i).isAnnotationPresent(ForeignKey.class)){
                         value = treatForeignKey(con, value, fields.get(i), (BddObject) object);
                     }if(value == null)
@@ -578,6 +580,37 @@ public class BddObject  {
     /**
      * 
      * @param con
+     * @param value
+     * @param field
+     * @param object
+     * @return
+     * @throws Exception 
+     */
+    public Object treatForeignKey(Connection con, Object value, Field field, BddObject object) throws Exception{
+        BddObject temp = null;
+        String classForName = "";
+        if(field.getType() == java.util.List.class ){
+            ParameterizedType listType = (ParameterizedType) field.getGenericType();
+            Class<?> listClass = (Class<?>) listType.getActualTypeArguments()[0];
+            String[] splited = listClass.toString().split(" ");
+            classForName = splited[splited.length -1];
+        }else{
+            String[] splited = field.getType().toString().split(" ");
+            classForName = splited[splited.length -1];
+        }
+        temp = (BddObject) Class.forName(classForName).getDeclaredConstructor().newInstance();
+        Field[] tests = this.getSameFields( temp );
+        for (Field test : tests) {
+            if(test.getType() == this.getClass()){
+                temp.setParent(this);
+            }
+        }
+        temp.setForeignSameFields(tests);
+        return createForeignKeyObject(con, field, temp, value, object);
+    }
+    /**
+     * 
+     * @param con
      * @param field
      * @param foreignKey
      * @param value
@@ -601,44 +634,12 @@ public class BddObject  {
             ArrayList<Object> objects = (ArrayList) obj;
             for( Object o : objects ){
                 for( Field f : foreignKey.getForeignSameFields() ){
-//                    f.setAccessible(true);
                     Method setter = DaoUtility.getSetter(o, f);
                     setter.invoke(o, foreignKey.getParent());
                 }
             }
         }
         return obj;
-    }
-    /**
-     * 
-     * @param con
-     * @param value
-     * @param field
-     * @param object
-     * @return
-     * @throws Exception 
-     */
-    public Object treatForeignKey(Connection con, Object value, Field field, BddObject object) throws Exception{
-        BddObject temp = null;
-        String classForName = "";
-        if(field.getType() == java.util.List.class ){
-            ParameterizedType listType = (ParameterizedType) field.getGenericType();
-            Class<?> listClass = (Class<?>) listType.getActualTypeArguments()[0];
-            String[] splited = listClass.toString().split(" ");
-            classForName = splited[splited.length -1];
-        }else{
-            String[] splited = field.getType().toString().split(" ");
-            classForName = splited[splited.length -1];
-        }
-        temp = (BddObject) Class.forName(classForName).getDeclaredConstructor().newInstance();
-        Field[] tests = this.getSameFields( temp );
-        for (Field test : tests) {
-            if(test.getType() == this.getClass())
-                temp.setParent(this);
-        }
-        temp.setForeignSameFields(tests);
-        
-        return createForeignKeyObject(con, field, temp, value, object);
     }
     /**
      * 

@@ -3,11 +3,13 @@ com/dao/annotation/conf/ForeignType.class
 com/dao/database/GenericDao.class
 com/dao/database/BddObject.class
 com/dao/annotation/ForeignKey.class
+com/dao/test/Region.class
 com/dao/utils/Misc.class
 com/dao/database/DbProperties.class
 com/dao/annotation/PrimaryKey.class
 com/dao/utils/ClassMapping.class
 com/dao/properties/DatabaseType.class
+com/dao/test/District.class
 com/dao/file/FileUtility.class
 com/dao/utils/ObjectUtility.class
 com/dao/utils/DaoUtility.class

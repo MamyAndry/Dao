@@ -1,5 +1,6 @@
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/annotation/Column.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/database/DbConnection.java
+/home/mamisoa/ITU/L3/dao/src/main/java/com/dao/test/Region.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/file/FileUtility.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/utils/ClassMapping.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/annotation/Table.java
@@ -10,6 +11,7 @@
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/database/BddObject.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/utils/DaoUtility.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/annotation/PrimaryKey.java
+/home/mamisoa/ITU/L3/dao/src/main/java/com/dao/test/District.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/App.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/annotation/ForeignKey.java
 /home/mamisoa/ITU/L3/dao/src/main/java/com/dao/file/JsonUtility.java

@@ -17,15 +17,45 @@ import java.util.HashMap;
  */
 public class DbConnection {
     final static String confPath = "database.json";
-    String defaultConnection;
-    String inUseConnection;
-    public boolean init = false;
-    public Connection connection = null;
+    private String defaultConnection = "DefaultConnection";
+    private String inUseConnection;
+    private boolean init = false;
+    private Connection connection = null;
     private HashMap<String, DbProperties> listConnection;
-    //SETTERS & GETTERS
 
     public void setListConnection(HashMap<String, DbProperties> listConnection) {
         this.listConnection = listConnection;
+    }
+    public  String getConfPath() {
+        return confPath;
+    }
+
+    public String getDefaultConnection() {
+        return defaultConnection;
+    }
+
+    public void setDefaultConnection(String defaultConnection) {
+        this.defaultConnection = defaultConnection;
+    }
+
+    public String getInUseConnection() {
+        return inUseConnection;
+    }
+
+    public boolean isInit() {
+        return init;
+    }
+
+    public void setInit(boolean init) {
+        this.init = init;
+    }
+
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
+
+    public HashMap<String, DbProperties> getListConnection() {
+        return listConnection;
     }
 
     //METHODS
@@ -58,14 +88,16 @@ public class DbConnection {
      * @throws Exception
      */
     public Connection connect()throws Exception{
-        if(!isInit()) init();
+        if(!isInit()) {
+            init();
+        }
         setConnection(createConnection(getInUseConnection()));
         return getConnection();
     }
 
     public void init() throws Exception{
-        read();
         setInit(true);
+        read();
     }
 
     public Connection connect(String connection)throws Exception{
@@ -109,37 +141,4 @@ public class DbConnection {
     public void commit() throws Exception {
         getConnection().commit();
     }
-
-    public  String getConfPath() {
-        return confPath;
-    }
-
-    public String getDefaultConnection() {
-        return defaultConnection;
-    }
-
-    public void setDefaultConnection(String defaultConnection) {
-        this.defaultConnection = defaultConnection;
-    }
-
-    public String getInUseConnection() {
-        return inUseConnection;
-    }
-
-    public boolean isInit() {
-        return init;
-    }
-
-    public void setInit(boolean init) {
-        this.init = init;
-    }
-
-    public void setConnection(Connection connection) {
-        this.connection = connection;
-    }
-
-    public HashMap<String, DbProperties> getListConnection() {
-        return listConnection;
-    }
-
 }
