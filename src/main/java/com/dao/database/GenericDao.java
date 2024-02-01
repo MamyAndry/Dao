@@ -62,7 +62,7 @@ public class GenericDao{
                 state = true;
             }
             String query = "DELETE FROM " + DaoUtility.getTableName(obj)+" WHERE " + DaoUtility.getPrimaryKeyName(obj)  + " = '" + DaoUtility.getPrimaryKeyGetMethod(obj).invoke(obj, (Object[]) null) + "'" ;
-           System.out.println(query);
+            // System.out.println(query);
             Statement stmt = con.createStatement();
             stmt.executeUpdate(query);
         }finally {

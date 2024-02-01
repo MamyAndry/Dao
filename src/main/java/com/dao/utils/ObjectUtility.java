@@ -159,7 +159,7 @@ public class ObjectUtility {
     }
 
     public static boolean isStringNumeric(String str) throws Exception{
-        Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+        Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?,?\\d+");
         if(str == null)
             return false;
         return pattern.matcher(str).matches();

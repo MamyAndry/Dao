@@ -401,7 +401,7 @@ public class BddObject  {
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName() + " WHERE " + condition;
-            System.out.println(query);
+            // System.out.println(query);
             List<T> lst = this.fetch(con, query);
             return lst;
         }finally {
@@ -427,7 +427,7 @@ public class BddObject  {
             PreparedStatement stmt =  con.prepareStatement(query);
             stmt.executeUpdate();
         }finally {
-                if(state == true) con.close();
+            if(state == true) con.close();
         }
     }
     
