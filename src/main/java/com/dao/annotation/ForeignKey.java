@@ -12,5 +12,5 @@ import com.dao.annotation.conf.ForeignType;
 
 public @interface ForeignKey {
     String mappedBy();
-    ForeignType foreignType() default ForeignType.ManyToOne;
+    ForeignType foreignType() default ForeignType.OneToMany;
 }

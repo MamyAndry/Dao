@@ -8,6 +8,7 @@ import com.dao.annotation.Table;
 import com.dao.annotation.Column;
 import com.dao.annotation.PrimaryKey;
 import com.dao.annotation.ForeignKey;
+import com.dao.annotation.GeneratedValue;
 import com.dao.annotation.conf.ForeignType;
 import com.dao.database.DbConnection;
 
@@ -252,7 +253,7 @@ public class DaoUtility {
     public static String[] getPrimaryKeyDetails(Object obj) throws Exception{
         String[] lst = new String[5];
         Field field = getPrimaryKeyField(obj);
-        PrimaryKey pk = field.getAnnotation(PrimaryKey.class);
+        GeneratedValue pk = field.getAnnotation(GeneratedValue.class);
         String prefix = pk.prefix();
         lst[0] = ""+pk.autoIncrement();
         lst[1] = prefix;

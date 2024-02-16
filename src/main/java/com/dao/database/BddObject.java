@@ -68,8 +68,8 @@ public class BddObject  {
 
     //METHODS
     public void init(){
-            this.setTableName(DaoUtility.getTableName(this));
-            this.setPrimaryKeyName(DaoUtility.getPrimaryKeyColumnName(this));
+        this.setTableName(DaoUtility.getTableName(this));
+        this.setPrimaryKeyName(DaoUtility.getPrimaryKeyColumnName(this));
     }
 
     /**
