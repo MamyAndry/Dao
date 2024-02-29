@@ -11,6 +11,7 @@ import com.dao.annotation.ForeignKey;
 import com.dao.annotation.GeneratedValue;
 import com.dao.annotation.conf.ForeignType;
 import com.dao.database.DbConnection;
+import com.dao.file.JsonUtility;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -84,11 +85,11 @@ public class DaoUtility {
         while(objClass != Object.class){
             for(Field declaredField : objClass.getDeclaredFields()) {
                 if(declaredField.isAnnotationPresent(Column.class)){
-                    declaredField.setAccessible(true);
+                    // declaredField.setAccessible(true);
                     lst.add(declaredField);
                 }else if(declaredField.isAnnotationPresent(ForeignKey.class)){
-                    declaredField.setAccessible(true);
-                        lst.add(declaredField);
+                    // declaredField.setAccessible(true);
+                    lst.add(declaredField);
                 }
             }
             objClass = objClass.getSuperclass();
@@ -101,7 +102,7 @@ public class DaoUtility {
         for( Field l : lst ){
             for( Field f : fields ){
                 if( l.getName().equals( f.getName() ) ){
-                    l.setAccessible(false);
+                    // l.setAccessible(false);
                     break;
                 }
             }
@@ -110,15 +111,11 @@ public class DaoUtility {
     }   
     
     public static List<Field> getAllColumnFields(Object obj) throws Exception{
-        List<Field> lst = new ArrayList<>();
-        lst.addAll(getColumnFields(obj.getClass()));
-        return lst;
+        return getColumnFields(obj.getClass());
     }
     
     public static List<Field> getAllColumnFields(Object obj, Field[] fields) throws Exception{
-        List<Field> lst = new ArrayList<>();
-        lst.addAll(getColumnFields(obj.getClass(), fields));
-        return lst;
+        return getColumnFields(obj.getClass(), fields);
     }
     
     public static String getName( Field field ){
@@ -132,16 +129,16 @@ public class DaoUtility {
     }
     
     public static String[] getColumns(Object obj) throws Exception{
-        List<Field> lst = getAllColumnFields(obj);
+        List<Field> lst = getColumnFields(obj.getClass());
         ArrayList<String> list = new ArrayList<>();
-        list.add(getPrimaryKeyColumnName(obj));
-        for(int i = 1; i < lst.size() ; i++){
+        for(int i = 0; i < lst.size() ; i++){
             if(lst.get(i).isAnnotationPresent(Column.class)){
                 Column col = lst.get(i).getAnnotation(Column.class);
-                if(col.name().equals(""))
+                if(col.name().equals("")){
                     list.add(ObjectUtility.capitalize(lst.get(i).getName()));
-                else
+                }else{
                     list.add(ObjectUtility.capitalize(col.name()));
+                }
             }else if(lst.get(i).isAnnotationPresent(ForeignKey.class)){
                 ForeignKey fk = lst.get(i).getAnnotation(ForeignKey.class);
                 if(fk.foreignType() == ForeignType.OneToMany || fk.foreignType() == ForeignType.OneToOne){
@@ -191,7 +188,7 @@ public class DaoUtility {
         String res = " ("; 
         for(String elt : lst){
             res += elt+",";
-//            System.out.println(elt);
+            // System.out.println(elt);
         }
         res = res.substring(0, res.lastIndexOf(','));
         return res+")";

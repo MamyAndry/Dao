@@ -33,16 +33,16 @@ public class GenericDao{
         return foreignSameFields;
     }
 
-    public static void setForeignSameFields(Field[] foreignSameFields) {
-        foreignSameFields = foreignSameFields;
+    public static void setForeignSameFields(Field[] foreignSameField) {
+        foreignSameFields = foreignSameField;
     }
 
     public static Object getParent() {
         return parent;
     }
 
-    public static void setParent(Object parent) {
-        parent = parent;
+    public static void setParent(Object p) {
+        parent = p;
     }
 
     //INSERT
@@ -65,7 +65,7 @@ public class GenericDao{
                 values += constructPK(con, name, obj) + ", ";
             else if(field.isAnnotationPresent(ForeignKey.class)){
                 if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){
-                    BddObject temp = (BddObject) method.invoke(obj, (Object[]) null);
+                    Object temp = method.invoke(obj, (Object[]) null);
                     values += "'" + DaoUtility.getPrimaryKeyGetMethod(temp).invoke(temp, (Object[]) null) + "', ";
                 }
             }
@@ -74,7 +74,7 @@ public class GenericDao{
             }else{ 
                 values += DaoUtility.convertForSql(method.invoke(obj, (Object[]) null)) + ", "; 
             }
-//            System.out.println(values);
+            // System.out.println(values);
         }
         values = values.substring(0, values.lastIndexOf(','));
         values = values + ")";
@@ -88,8 +88,8 @@ public class GenericDao{
                 con = new DbConnection().connect();
                 state = true;
             }
-            String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj)+" VALUES " + getValues(con, "DefaultConnection", obj);
-            // System.out.println(query);
+            String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj) + " VALUES " + getValues(con, "DefaultConnection", obj);
+            System.out.println(query);
             PreparedStatement stmt =  con.prepareStatement(query);
             stmt.executeUpdate();
         }finally {
@@ -106,7 +106,7 @@ public class GenericDao{
                 state = true;
             }
             String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj)+" VALUES " + getValues(con, name, obj);
-           System.out.println(query);
+            System.out.println(query);
             PreparedStatement stmt =  con.prepareStatement(query);
             stmt.executeUpdate();
         }finally {
@@ -133,7 +133,20 @@ public class GenericDao{
             if(state == true) con.close();
         }
     }
-    
+
+    public static void delete(Connection con, Object obj) throws Exception{
+        boolean state = false;
+        try{
+            if(con == null){
+                con = new DbConnection().connect();
+                state = true;
+            }
+            String condition = DaoUtility.getPrimaryKeyName(obj) + " = '" + DaoUtility.getPrimaryKeyGetMethod(obj).invoke(obj, (Object[]) null) + "'";
+            deleteWhere(con, condition, obj);
+        }finally {
+            if(state == true) con.close();
+        }
+    }
     public static void deleteWhere(Connection con, String condition, Object obj) throws Exception {
         boolean state = false;
         try{
@@ -143,7 +156,7 @@ public class GenericDao{
             }
             String query = "DELETE FROM " + DaoUtility.getTableName(obj) + " WHERE " + condition;
             PreparedStatement stmt = con.prepareStatement(query);
-            stmt.executeUpdate(query);
+            stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
         }    
@@ -155,7 +168,7 @@ public class GenericDao{
                 con = new DbConnection().connect();
                 state = true;
             }
-            String condition = "FROM " + DaoUtility.getTableName(obj)+" WHERE " + DaoUtility.getPrimaryKeyName(obj)  +" = '" + id +"'";
+            String condition = DaoUtility.getPrimaryKeyName(obj)  +" = '" + id +"'";
             deleteWhere(con, condition, obj);
         }finally {
             if(state == true) con.close();
@@ -235,6 +248,7 @@ public class GenericDao{
         }    
     }
     
+    @SuppressWarnings("unchecked")
     public static <T> T findById(Connection con, Object id, Object obj)throws Exception{
         boolean state = false;
         try{
@@ -419,6 +433,7 @@ public class GenericDao{
      * @return
      * @throws Exception 
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Object createForeignKeyObject(Connection con, Field field, Object foreignKey, Object value, Object object) throws Exception{
         Object obj = null;
         if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){

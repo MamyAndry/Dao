@@ -3,7 +3,6 @@ package com.dao.test.entity;
 
 import com.dao.annotation.*;
 import com.dao.annotation.conf.ForeignType;
-import com.dao.database.BddObject;
 
 
 

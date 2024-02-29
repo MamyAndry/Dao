@@ -319,6 +319,7 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
+    @SuppressWarnings("unchecked")
     public <T> T findById(Connection con, Object id)throws Exception{
         boolean state = false;
         try{
@@ -345,6 +346,7 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
+    @SuppressWarnings("unchecked")
     public <T> T findById(Connection con)throws Exception{
         boolean state = false;
         try{
@@ -499,6 +501,7 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
+    @SuppressWarnings("unchecked")
     private <T> T convertToObject(Connection con, ResultSet resultSet, List<Field> fields, List<Method> methods, Object obj, List<String> columns) throws Exception{
         Object object = obj.getClass().getDeclaredConstructor().newInstance();
         for (String column : columns) {
@@ -529,6 +532,7 @@ public class BddObject  {
      * @throws Exception 
      */
 
+    @SuppressWarnings("unchecked")
     private <T>  T convertToObject(Connection con, ResultSet resultSet, List<Field> fields, List<Method> methods, List<String> columns) throws Exception{
         Object object = this.getClass().getDeclaredConstructor().newInstance();
         for (String column : columns) {
@@ -615,9 +619,11 @@ public class BddObject  {
      * @param foreignKey
      * @param value
      * @param object
+import java.util.Arrays;
      * @return
      * @throws Exception 
      */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Object createForeignKeyObject(Connection con, Field field, BddObject foreignKey, Object value, BddObject object) throws Exception{
         Object obj = null;
         if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){
