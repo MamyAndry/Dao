@@ -53,16 +53,16 @@ public class GenericDao{
      * @return
      * @throws Exception 
      */
-    public static String getValues(Connection con,String name, Object obj) throws Exception{
+    public static String getValues(DbConnection con,String name, Object obj) throws Exception{
         String values = "(";
         List<Field> lst = DaoUtility.getAllColumnFields(obj);
         for(Field field : lst){
             Method method = DaoUtility.getGetter(obj, field);
             Class<?> returnParam = method.getReturnType();
             if(method.equals(DaoUtility.getPrimaryKeyGetMethod(obj)) && method.invoke(obj, (Object[]) null) == null && returnParam.equals(String.class))
-                values += DaoUtility.convertForSql(constructPK(con, name, obj)) + ", ";  
+                values += DaoUtility.convertForSql(constructPK(con, obj)) + ", ";  
             else if(method.equals(DaoUtility.getPrimaryKeyGetMethod(obj)) && method.invoke(obj, (Object[]) null) == null && returnParam.equals(Integer.class))
-                values += constructPK(con, name, obj) + ", ";
+                values += constructPK(con, obj) + ", ";
             else if(field.isAnnotationPresent(ForeignKey.class)){
                 if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){
                     Object temp = method.invoke(obj, (Object[]) null);
@@ -81,16 +81,16 @@ public class GenericDao{
         return values;
     }
 
-    public static void save(Connection con, Object obj) throws Exception{
+    public static void save(DbConnection con, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj) + " VALUES " + getValues(con, "DefaultConnection", obj);
             System.out.println(query);
-            PreparedStatement stmt =  con.prepareStatement(query);
+            PreparedStatement stmt =  con.connect().prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
@@ -98,16 +98,16 @@ public class GenericDao{
     }
     
     
-    public void save(Connection con,String name, Object obj) throws Exception{
+    public void save(DbConnection con,String name, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect(name);
+                con = new DbConnection();
                 state = true;
             }
             String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj)+" VALUES " + getValues(con, name, obj);
-            System.out.println(query);
-            PreparedStatement stmt =  con.prepareStatement(query);
+            // System.out.println(query);
+            PreparedStatement stmt =  con.connect(name).prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
@@ -119,26 +119,26 @@ public class GenericDao{
      * @param con
      * @throws Exception 
      */
-    public void deleteAll(Connection con, Object obj) throws Exception{
+    public void deleteAll(DbConnection con, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "DELETE FROM " + DaoUtility.getTableName(obj);
-            PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.connect().prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
         }
     }
 
-    public static void delete(Connection con, Object obj) throws Exception{
+    public static void delete(DbConnection con, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(obj) + " = '" + DaoUtility.getPrimaryKeyGetMethod(obj).invoke(obj, (Object[]) null) + "'";
@@ -147,25 +147,25 @@ public class GenericDao{
             if(state == true) con.close();
         }
     }
-    public static void deleteWhere(Connection con, String condition, Object obj) throws Exception {
+    public static void deleteWhere(DbConnection con, String condition, Object obj) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "DELETE FROM " + DaoUtility.getTableName(obj) + " WHERE " + condition;
-            PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.connect().prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
         }    
     }
-    public static void deleteById(Connection con, Object id, Object obj) throws Exception{
+    public static void deleteById(DbConnection con, Object id, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(obj)  +" = '" + id +"'";
@@ -201,28 +201,28 @@ public class GenericDao{
         query = query.substring(0, query.lastIndexOf(','));
         return query;
     }
-    public static void update(Connection con,Object obj) throws Exception {
+    public static void update(DbConnection con,Object obj) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "UPDATE "+ DaoUtility.getTableName(obj) +" SET " + updatedValues(obj);
             query += " WHERE " + DaoUtility.getPrimaryKeyName(obj) +" = '" + DaoUtility.getPrimaryKeyGetMethod(obj).invoke( obj, (Object[]) null)+"'";
             // System.out.println(query);
-            PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.connect().prepareStatement(query);
             stmt.executeUpdate();
         }finally{
             if(state == true) con.close();
         }      
     }
     //SELECT
-    public static <T> List<T> findAll(Connection con, Object obj)throws Exception{
+    public static <T> List<T> findAll(DbConnection con, Object obj)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj); 
@@ -232,12 +232,30 @@ public class GenericDao{
             if(state == true) con.close();
         }    
     }
-    
-    public <T> List<T> findAllFromTable(Connection con, Object obj,String tableName)throws Exception{
+    public static <T> List<T> findAll(DbConnection con, Object obj, Pageable pageable)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
+                state = true;
+            }
+            String query = "SELECT * FROM " + DaoUtility.getTableName(obj) + " ORDER BY " + DaoUtility.getPrimaryKeyName(obj) +  " " + pageable.getOrder() + " " 
+            + con.getInUseDbProperties().getDatabaseType().getLimit()
+                .replace("1?", "" + pageable.getStart())
+                .replace("2?", "" + pageable.getLength());;
+            System.out.println(query);
+            List<T> list = fetch(con, query, obj);
+            return list;
+        }finally {
+            if(state == true) con.close();
+        }
+    }
+    
+    public <T> List<T> findAllFromTable(DbConnection con, Object obj,String tableName)throws Exception{
+        boolean state = false;
+        try{
+            if(con == null){
+                con = new DbConnection();
                 state = true;
             }
             String query = "SELECT * FROM " + tableName;
@@ -249,11 +267,11 @@ public class GenericDao{
     }
     
     @SuppressWarnings("unchecked")
-    public static <T> T findById(Connection con, Object id, Object obj)throws Exception{
+    public static <T> T findById(DbConnection con, Object id, Object obj)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj) + " WHERE " + DaoUtility.getPrimaryKeyName(obj) + " = '" + id + "'";
@@ -266,11 +284,11 @@ public class GenericDao{
     }
     
     // search line to print
-    public static <T> List<T> findWhere(Connection con, Object obj) throws Exception{
+    public static <T> List<T> findWhere(DbConnection con, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             
@@ -283,11 +301,11 @@ public class GenericDao{
         }
     }
     
-    public static <T> List<T> findWhere(Connection con, String condition, Object obj) throws Exception {
+    public static <T> List<T> findWhere(DbConnection con, String condition, Object obj) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj) + " WHERE " + condition;
@@ -299,32 +317,33 @@ public class GenericDao{
     }
     
     //OTHERS
-    public static void executeUpdate(Connection con, String query) throws Exception{
+    public static void executeUpdate(DbConnection con, String query) throws Exception{
         boolean state = false;  
         try{      
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
-            Statement stmt =  con.createStatement();
+            Statement stmt =  con.connect().createStatement();
             stmt.executeUpdate(query);
         }finally {
             if(state == true) con.close();
         }    
     }
-    public static <T> List<T> executeQuery(Connection con, String query, Object obj) throws Exception{
+    public static <T> List<T> executeQuery(DbConnection con, String query, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             List<T> list = new ArrayList<>();
-            Statement stmt = con.createStatement();
+            Connection connection = con.connect();
+            Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             List<Field> fields = DaoUtility.getAllColumnFields(obj);
             List<Method> methods = DaoUtility.getAllSettersMethod(obj);
-            List<String> columns = DaoUtility.getTableColumns(con, DaoUtility.getTableName(obj));
+            List<String> columns = DaoUtility.getTableColumns(connection, DaoUtility.getTableName(obj));
             while( rs.next() ){
                 T now = convertToObject(con, rs, fields, methods, obj, columns);
                 list.add(now);
@@ -335,13 +354,14 @@ public class GenericDao{
         }    
     }
     
-    public static <T> List<T> fetch(Connection con, String query, Object obj) throws Exception{
+    public static <T> List<T> fetch(DbConnection con, String query, Object obj) throws Exception{
         List<T> list = new ArrayList<>();
-        Statement stmt = con.createStatement();
+        Connection connection = con.connect();
+        Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query);
         List<Field> fields = DaoUtility.getAllColumnFields(obj);
         List<Method> methods = DaoUtility.getAllSettersMethod(obj);
-        List<String> columns = DaoUtility.getTableColumns(con, DaoUtility.getTableName(obj));
+        List<String> columns = DaoUtility.getTableColumns(connection, DaoUtility.getTableName(obj));
         while( rs.next() ){
             T now = convertToObject(con, rs, fields, methods, obj, columns);
             list.add(now);
@@ -350,7 +370,7 @@ public class GenericDao{
     }
     
     @SuppressWarnings("unchecked")
-    private static <T> T convertToObject(Connection con, ResultSet resultSet, List<Field> fields, List<Method> methods, Object obj, List<String> columns) throws Exception{
+    private static <T> T convertToObject(DbConnection con, ResultSet resultSet, List<Field> fields, List<Method> methods, Object obj, List<String> columns) throws Exception{
         Object object = obj.getClass().getDeclaredConstructor().newInstance();
         for (String column : columns) {
             for( int i = 0; i < fields.size() ; i++ ){
@@ -369,26 +389,26 @@ public class GenericDao{
         return (T) object;
     }
         
-    public static String constructPK(Connection con, String name, Object obj)throws Exception{
+    public static String constructPK(DbConnection con, Object obj)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect(name);
+                con = new DbConnection();
                 state = true;
             }
             String[] detail = DaoUtility.getPrimaryKeyDetails(obj);
             if(detail[0].equals("true"))
                 return "default";
-            String query = new DbConnection().getListConnection().get(name).getDatabaseType().getSequenceQuery();
+            String query = con.getInUseDbProperties().getDatabaseType().getSequenceQuery();
             // query = "SELECT nextval('" + detail[2] + "')";
             query = query.replace("?", detail[2]);
-            PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.connect().prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
             rs.next();
             String isa = ObjectUtility.fillZero(Integer.parseInt(detail[3]), Integer.parseInt(detail[4]), rs.getString(1));
             return detail[1]+isa;
         }finally {
-                if(state == true) con.close();
+            if(state == true) con.close();
         }
     }
     
@@ -401,7 +421,7 @@ public class GenericDao{
      * @return
      * @throws Exception 
      */
-    public static Object treatForeignKey(Connection con, Object value, Field field, Object object) throws Exception{
+    public static Object treatForeignKey(DbConnection con, Object value, Field field, Object object) throws Exception{
         Object temp = null;
         String classForName = "";
         if(field.getType() == java.util.List.class ){
@@ -434,7 +454,7 @@ public class GenericDao{
      * @throws Exception 
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static Object createForeignKeyObject(Connection con, Field field, Object foreignKey, Object value, Object object) throws Exception{
+    public static Object createForeignKeyObject(DbConnection con, Field field, Object foreignKey, Object value, Object object) throws Exception{
         Object obj = null;
         if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){
             if(GenericDao.getParent() != null){

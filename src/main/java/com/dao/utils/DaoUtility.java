@@ -11,7 +11,6 @@ import com.dao.annotation.ForeignKey;
 import com.dao.annotation.GeneratedValue;
 import com.dao.annotation.conf.ForeignType;
 import com.dao.database.DbConnection;
-import com.dao.file.JsonUtility;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

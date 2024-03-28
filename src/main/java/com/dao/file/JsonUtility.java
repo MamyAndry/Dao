@@ -5,6 +5,7 @@
 package com.dao.file;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -22,6 +23,8 @@ public class JsonUtility {
         return (T)temp;
     }
     public static String encodeJson(Object object) throws Exception{
-        return new Gson().toJson(object);
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
+        return builder.create().toJson(object);
     }
 }

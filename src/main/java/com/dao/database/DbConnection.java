@@ -18,7 +18,8 @@ import java.util.HashMap;
 public class DbConnection {
     final static String confPath = "database.json";
     private String defaultConnection = "DefaultConnection";
-    private String inUseConnection;
+    private String inUseConnection;    
+    private DbProperties inUseDbProperties;
     private boolean init = false;
     private Connection connection = null;
     private HashMap<String, DbProperties> listConnection;
@@ -36,6 +37,14 @@ public class DbConnection {
 
     public void setDefaultConnection(String defaultConnection) {
         this.defaultConnection = defaultConnection;
+    }
+
+    public DbProperties getInUseDbProperties() {
+        return inUseDbProperties;
+    }
+
+    public void setInUseDbProperties(DbProperties inUseDbProperties) {
+        this.inUseDbProperties = inUseDbProperties;
     }
 
     public String getInUseConnection() {
@@ -69,14 +78,17 @@ public class DbConnection {
     }
 
     public void setInUseConnection(String inUseConnection){
-        if(getListConnection().get(inUseConnection) != null)
+        if(getListConnection().get(inUseConnection) != null){
             this.inUseConnection = inUseConnection;
-        else throw new IllegalArgumentException("There is no such connection : "+inUseConnection);
+            this.setInUseDbProperties(this.getListConnection().get(inUseConnection));
+        }
+        else throw new IllegalArgumentException("There is no such connection : " + inUseConnection);
     }
 
     public Connection createConnection(String connection)throws Exception{
         if(!isInit()) init();
         DbProperties prop = this.getListConnection().get(connection);
+        this.setInUseDbProperties(prop);
         return prop.connect();
     }
 

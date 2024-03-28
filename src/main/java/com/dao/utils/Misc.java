@@ -18,7 +18,6 @@ public class Misc {
     }
 
     public static String getConnectionConfLocation(){
-        String separator = File.separator;
-        return getConfigLocation() + separator + "connection";
+        return getConfigLocation() +  File.separator + "connection" ; 
     }
 }

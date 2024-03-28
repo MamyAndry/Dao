@@ -79,16 +79,16 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public String getValues(Connection con,String name) throws Exception{
+    public String getValues(DbConnection con,String name) throws Exception{
         String values = "(";
         List<Field> lst = DaoUtility.getAllColumnFields(this);
         for(Field field : lst){
             Method method = DaoUtility.getGetter(this, field);
             Class<?> returnParam = method.getReturnType();
             if(method.equals(DaoUtility.getPrimaryKeyGetMethod(this)) && method.invoke(this, (Object[]) null) == null && returnParam.equals(String.class))
-                values += DaoUtility.convertForSql(constructPK(con, name)) + ", ";  
+                values += DaoUtility.convertForSql(constructPK(con)) + ", ";  
             else if(method.equals(DaoUtility.getPrimaryKeyGetMethod(this)) && method.invoke(this, (Object[]) null) == null && returnParam.equals(Integer.class))
-                values += constructPK(con, name) + ", ";
+                values += constructPK(con) + ", ";
             else if(field.isAnnotationPresent(ForeignKey.class)){
                 if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){
                     BddObject temp = (BddObject) method.invoke(this, (Object[]) null);
@@ -111,32 +111,32 @@ public class BddObject  {
      * @param con
      * @throws Exception 
      */
-    public void save(Connection con) throws Exception{
+    public void save(DbConnection con) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "INSERT INTO " + this.getTableName() + DaoUtility.getListColumns(this)+" VALUES " + this.getValues(con, "DefaultConnection");
             // System.out.println(query);
-            PreparedStatement stmt =  con.prepareStatement(query);
+            PreparedStatement stmt =  con.connect(con.getInUseConnection()).prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
         }
     }
     
-    public void save(Connection con,String name) throws Exception{
+    public void save(DbConnection con,String name) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect(name);
+                con = new DbConnection();
                 state = true;
             }
             String query = "INSERT INTO " + this.getTableName() + DaoUtility.getListColumns(this)+" VALUES " + this.getValues(con, name);
            System.out.println(query);
-            PreparedStatement stmt =  con.prepareStatement(query);
+            PreparedStatement stmt =  con.connect(name).prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
@@ -149,15 +149,15 @@ public class BddObject  {
      * @param con
      * @throws Exception 
      */
-    public void deleteAll(Connection con) throws Exception{
+    public void deleteAll(DbConnection con) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "DELETE FROM " + this.getTableName();
-            PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.connect(con.getInUseConnection()).prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
@@ -170,27 +170,27 @@ public class BddObject  {
      * @param condition
      * @throws Exception 
      */
-    public void deleteWhere(Connection con, String condition) throws Exception {
+    public void deleteWhere(DbConnection con, String condition) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "DELETE FROM " + this.getTableName() + " WHERE " + condition;
             // System.out.println(query);
-            PreparedStatement stmt = con.prepareStatement(query);
+            PreparedStatement stmt = con.connect(con.getInUseConnection()).prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
         }    
     }
 
-    public void delete(Connection con) throws Exception {
+    public void delete(DbConnection con) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = this.getPrimaryKeyName()  + " = '" + DaoUtility.getPrimaryKeyGetMethod(this).invoke(this, (Object[]) null) + "'";
@@ -205,11 +205,11 @@ public class BddObject  {
      * @param id
      * @throws Exception 
      */
-    public void deleteById(Connection con, Object id) throws Exception{
+    public void deleteById(DbConnection con, Object id) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(this)  +" = '" + id +"'";
@@ -250,17 +250,17 @@ public class BddObject  {
      * @param con
      * @throws Exception 
      */
-    public void update(Connection con) throws Exception {
+    public void update(DbConnection con) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "UPDATE "+ this.getTableName() +" SET " + this.updatedValues();
-            query += " WHERE " + this.getPrimaryKeyName() +" = '" + DaoUtility.getPrimaryKeyGetMethod(this).invoke( this, (Object[]) null)+"'";
-            // System.out.println(query);
-            PreparedStatement stmt = con.prepareStatement(query);
+            query += " WHERE " + this.getPrimaryKeyName() +" = " + DaoUtility.getPrimaryKeyGetMethod(this).invoke( this, (Object[]) null)+"";
+            PreparedStatement stmt = con.connect(con.getInUseConnection()).prepareStatement(query);
+            // stmt.setString(1, );
             stmt.executeUpdate();
         }finally{
             if(state == true) con.close();
@@ -274,11 +274,11 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public <T> List<T> findAll(Connection con)throws Exception{
+    public <T> List<T> findAll(DbConnection con)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName();
@@ -289,6 +289,33 @@ public class BddObject  {
             if(state == true) con.close();
         }
     }
+    //SELECT
+    /**
+     * 
+     * @param <T>
+     * @param con
+     * @return
+     * @throws Exception 
+     */
+    public <T> List<T> findAll(DbConnection con, Pageable pageable)throws Exception{
+        boolean state = false;
+        try{
+            if(con == null){
+                con = new DbConnection();
+                state = true;
+            }
+            String query = "SELECT * FROM " + this.getTableName() + " ORDER BY " + this.getPrimaryKeyName() + " " + pageable.getOrder() + " " 
+                + con.getInUseDbProperties().getDatabaseType().getLimit()
+                    .replace("1?", "" + pageable.getStart())
+                    .replace("2?", "" + pageable.getLength());
+            // System.out.println(query);
+            List<T> list = this.fetch(con, query);
+            return list;
+        }finally {
+            if(state == true) con.close();
+        }
+    }
+    
     
     /**
      * 
@@ -296,12 +323,17 @@ public class BddObject  {
      * @param con
      * @param tableName
      * @return
-     * @throws Exception 
+     * @throws Exception con
+con
+con
+con
+con
+con
      */
-    public <T> List<T> findAllFromTable(Connection con, String tableName)throws Exception{
+    public <T> List<T> findAllFromTable(DbConnection con, String tableName)throws Exception{
         boolean state = false;
         if(con == null){
-            con = new DbConnection().connect();
+            con = new DbConnection();
             state = 
             true;
         }
@@ -320,11 +352,11 @@ public class BddObject  {
      * @throws Exception 
      */
     @SuppressWarnings("unchecked")
-    public <T> T findById(Connection con, Object id)throws Exception{
+    public <T> T findById(DbConnection con, Object id)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(this) + " = '" + id + "'";
@@ -347,11 +379,11 @@ public class BddObject  {
      * @throws Exception 
      */
     @SuppressWarnings("unchecked")
-    public <T> T findById(Connection con)throws Exception{
+    public <T> T findById(DbConnection con)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = this.getPrimaryKeyName() + " = '" + DaoUtility.getPrimaryKeyGetMethod(this).invoke(this, (Object[])null) + "'";
@@ -370,11 +402,11 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public <T>  List<T> findWhere(Connection con) throws Exception{
+    public <T>  List<T> findWhere(DbConnection con) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String condition = DaoUtility.getConditionByAttributeValue(this);
@@ -393,13 +425,13 @@ public class BddObject  {
      * @param con
      * @param condition
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
-    public <T>  List<T> findWhere(Connection con, String condition) throws Exception {
+    public <T>  List<T> findWhere(DbConnection con, String condition) throws Exception {
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName() + " WHERE " + condition;
@@ -419,14 +451,14 @@ public class BddObject  {
      * @param query
      * @throws Exception 
      */
-    public void executeUpdate(Connection con, String query) throws Exception{
+    public void executeUpdate(DbConnection con, String query) throws Exception{
         boolean state = false;   
         try{     
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
-            PreparedStatement stmt =  con.prepareStatement(query);
+            PreparedStatement stmt =  con.connect(con.getInUseConnection()).prepareStatement(query);
             stmt.executeUpdate();
         }finally {
             if(state == true) con.close();
@@ -442,19 +474,20 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public <T>  List<T> executeQuery(Connection con, String query, Object obj) throws Exception{
+    public <T>  List<T> executeQuery(DbConnection con, String query, Object obj) throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect();
+                con = new DbConnection();
                 state = true;
             }
             List<T> list = new ArrayList<>();
-            PreparedStatement stmt = con.prepareStatement(query);
+            Connection connection = con.connect(con.getInUseConnection());
+            PreparedStatement stmt = connection.prepareStatement(query);
             ResultSet rs = stmt.executeQuery();
             List<Field> fields = DaoUtility.getAllColumnFields(this);
             List<Method> methods = DaoUtility.getAllSettersMethod(this);
-            List<String> columns = DaoUtility.getTableColumns(con, this.getTableName());
+            List<String> columns = DaoUtility.getTableColumns(connection, this.getTableName());
             while( rs.next() ){
                 T now = this.convertToObject(con, rs, fields, methods, obj, columns);
                 list.add(now);
@@ -473,15 +506,16 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public <T> List<T> fetch( Connection con, String query ) throws Exception{
+    public <T> List<T> fetch( DbConnection con, String query ) throws Exception{
         List<T> list = new ArrayList<>();
-        PreparedStatement stmt = con.prepareStatement(query);
+        Connection connection = con.connect();
+        PreparedStatement stmt = connection.prepareStatement(query);
         ResultSet rs = stmt.executeQuery();
         List<Field> fields = ( this.getForeignSameFields() != null ) 
                 ? DaoUtility.getAllColumnFields(this, this.getForeignSameFields()) 
                 : DaoUtility.getAllColumnFields(this);
         List<Method> methods = DaoUtility.getAllSettersMethod(this);
-        List<String> columns = DaoUtility.getTableColumns(con, this.getTableName());
+        List<String> columns = DaoUtility.getTableColumns(con.connect(), this.getTableName());
         while( rs.next() ){
             T now = this.convertToObject(con, rs, fields, methods, columns);
             list.add(now);
@@ -502,7 +536,7 @@ public class BddObject  {
      * @throws Exception 
      */
     @SuppressWarnings("unchecked")
-    private <T> T convertToObject(Connection con, ResultSet resultSet, List<Field> fields, List<Method> methods, Object obj, List<String> columns) throws Exception{
+    private <T> T convertToObject(DbConnection con, ResultSet resultSet, List<Field> fields, List<Method> methods, Object obj, List<String> columns) throws Exception{
         Object object = obj.getClass().getDeclaredConstructor().newInstance();
         for (String column : columns) {
             for( int i = 0; i < fields.size() ; i++ ){
@@ -533,7 +567,7 @@ public class BddObject  {
      */
 
     @SuppressWarnings("unchecked")
-    private <T>  T convertToObject(Connection con, ResultSet resultSet, List<Field> fields, List<Method> methods, List<String> columns) throws Exception{
+    private <T>  T convertToObject(DbConnection con, ResultSet resultSet, List<Field> fields, List<Method> methods, List<String> columns) throws Exception{
         Object object = this.getClass().getDeclaredConstructor().newInstance();
         for (String column : columns) {
             for( int i = 0; i < fields.size() ; i++ ){
@@ -559,20 +593,19 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public String constructPK(Connection con, String name)throws Exception{
+    public String constructPK(DbConnection con)throws Exception{
         boolean state = false;
         try{
             if(con == null){
-                con = new DbConnection().connect(name);
+                con = new DbConnection();
                 state = true;
             }
             String[] detail = DaoUtility.getPrimaryKeyDetails(this);
             if(detail[0].equals("true"))
                 return "default";
-            String query = new DbConnection().getListConnection().get(name).getDatabaseType().getSequenceQuery();
-            // query = "SELECT nextval('" + detail[2] + "')";
-            query = query.replace("?", detail[2]);
-            PreparedStatement stmt = con.prepareStatement(query);
+            String query = con.getInUseDbProperties().getDatabaseType().getSequenceQuery();
+            PreparedStatement stmt = con.connect().prepareStatement(query);
+            stmt.setString(1, detail[2]);
             ResultSet rs = stmt.executeQuery();
             rs.next();
             String isa = ObjectUtility.fillZero(Integer.parseInt(detail[3]), Integer.parseInt(detail[4]), rs.getString(1));
@@ -590,7 +623,7 @@ public class BddObject  {
      * @return
      * @throws Exception 
      */
-    public Object treatForeignKey(Connection con, Object value, Field field, BddObject object) throws Exception{
+    public Object treatForeignKey(DbConnection con, Object value, Field field, BddObject object) throws Exception{
         BddObject temp = null;
         String classForName = "";
         if(field.getType() == java.util.List.class ){
@@ -619,12 +652,11 @@ public class BddObject  {
      * @param foreignKey
      * @param value
      * @param object
-import java.util.Arrays;
      * @return
      * @throws Exception 
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static Object createForeignKeyObject(Connection con, Field field, BddObject foreignKey, Object value, BddObject object) throws Exception{
+    public static Object createForeignKeyObject(DbConnection con, Field field, BddObject foreignKey, Object value, BddObject object) throws Exception{
         Object obj = null;
         if(field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToMany || field.getAnnotation(ForeignKey.class).foreignType() == ForeignType.OneToOne){
             if(foreignKey.getParent() != null){
