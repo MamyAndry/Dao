@@ -24,9 +24,12 @@ public class App
             Pageable pageable = new Pageable("ASC", 4, 2);
             List<District> lst = GenericDao.findAll(null, tempDistrict, pageable); 
             // List<District> lst = GenericDao.findAll(dbConnection, tempDistrict); 
-            for (District district : lst) {
-                System.out.println(JsonUtility.encodeJson(district));
-            } 
+            // for (District district : lst) {
+            //     System.out.println(JsonUtility.encodeJson(district));
+            // } 
+
+            System.out.println(GenericDao.getLineCount(null, tempDistrict));
+
             // tempDistrictsetId(158);
             // region.setNomRegion("hahA");
             // System.out.println(JsonUtility.encodeJson(district));

@@ -240,6 +240,25 @@ public class GenericDao{
             if(state == true) con.close();
         }    
     }
+
+    public static int getLineCount(DbConnection con, Object obj)throws Exception{
+        boolean state = false;
+        try{
+            if(con == null){
+                con = new DbConnection();
+                con.init();
+                state = true;
+            }
+            String query = "SELECT COUNT(*) FROM " + DaoUtility.getTableName(obj);
+            PreparedStatement statement = con.getConnection().prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        }finally {
+            if(state == true) con.close();
+        }
+    }
+
     public static <T> List<T> findAll(DbConnection con, Object obj, Pageable pageable)throws Exception{
         boolean state = false;
         try{
@@ -252,7 +271,7 @@ public class GenericDao{
             + con.getInUseDbProperties().getDatabaseType().getLimit()
                 .replace("1?", "" + pageable.getStart())
                 .replace("2?", "" + pageable.getLength());;
-            System.out.println(query);
+            // System.out.println(query);
             List<T> list = fetch(con, query, obj);
             return list;
         }finally {
@@ -403,7 +422,7 @@ public class GenericDao{
         }
         return (T) object;
     }
-        
+
     public static String constructPK(DbConnection con, Object obj)throws Exception{
         boolean state = false;
         try{

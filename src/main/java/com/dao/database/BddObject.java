@@ -297,7 +297,6 @@ public class BddObject  {
             if(state == true) con.close();
         }
     }
-    //SELECT
     /**
      * 
      * @param <T>
@@ -326,18 +325,31 @@ public class BddObject  {
     }
     
     
+    public int getLineCount(DbConnection con)throws Exception{
+        boolean state = false;
+        try{
+            if(con == null){
+                con = new DbConnection();
+                con.init();
+                state = true;
+            }
+            String query = "SELECT COUNT(*) FROM " + this.getTableName();
+            PreparedStatement statement = con.getConnection().prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        }finally {
+            if(state == true) con.close();
+        }
+    }
+
     /**
      * 
      * @param <T>
      * @param con
      * @param tableName
      * @return
-     * @throws Exception con
-con
-con
-con
-con
-con
+     * @throws Exception 
      */
     public <T> List<T> findAllFromTable(DbConnection con, String tableName)throws Exception{
         boolean state = false;
