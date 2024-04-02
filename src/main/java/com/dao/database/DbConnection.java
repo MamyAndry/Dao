@@ -153,4 +153,8 @@ public class DbConnection {
     public void commit() throws Exception {
         getConnection().commit();
     }
+
+    public DbConnection() throws Exception{
+        init();
+    }
 }

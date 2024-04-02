@@ -516,7 +516,7 @@ con
                 : DaoUtility.getAllColumnFields(this);
         List<Method> methods = DaoUtility.getAllSettersMethod(this);
         List<String> columns = DaoUtility.getTableColumns(con.connect(), this.getTableName());
-        while( rs.next() ){
+        while(rs.next()){
             T now = this.convertToObject(con, rs, fields, methods, columns);
             list.add(now);
         }
