@@ -116,6 +116,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "INSERT INTO " + this.getTableName() + DaoUtility.getListColumns(this)+" VALUES " + this.getValues(con, "DefaultConnection");
@@ -132,6 +133,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "INSERT INTO " + this.getTableName() + DaoUtility.getListColumns(this)+" VALUES " + this.getValues(con, name);
@@ -154,6 +156,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "DELETE FROM " + this.getTableName();
@@ -175,6 +178,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "DELETE FROM " + this.getTableName() + " WHERE " + condition;
@@ -191,6 +195,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = this.getPrimaryKeyName()  + " = '" + DaoUtility.getPrimaryKeyGetMethod(this).invoke(this, (Object[]) null) + "'";
@@ -210,6 +215,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(this)  +" = '" + id +"'";
@@ -255,6 +261,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "UPDATE "+ this.getTableName() +" SET " + this.updatedValues();
@@ -279,6 +286,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName();
@@ -302,6 +310,7 @@ public class BddObject  {
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName() + " ORDER BY " + this.getPrimaryKeyName() + " " + pageable.getOrder() + " " 
@@ -357,6 +366,7 @@ con
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(this) + " = '" + id + "'";
@@ -384,6 +394,7 @@ con
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = this.getPrimaryKeyName() + " = '" + DaoUtility.getPrimaryKeyGetMethod(this).invoke(this, (Object[])null) + "'";
@@ -407,6 +418,7 @@ con
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = DaoUtility.getConditionByAttributeValue(this);
@@ -432,6 +444,7 @@ con
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + this.getTableName() + " WHERE " + condition;
@@ -456,6 +469,7 @@ con
         try{     
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             PreparedStatement stmt =  con.connect(con.getInUseConnection()).prepareStatement(query);
@@ -479,6 +493,7 @@ con
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             List<T> list = new ArrayList<>();
@@ -598,6 +613,7 @@ con
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String[] detail = DaoUtility.getPrimaryKeyDetails(this);

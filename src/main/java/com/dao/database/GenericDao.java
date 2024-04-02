@@ -86,6 +86,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj) + " VALUES " + getValues(con, "DefaultConnection", obj);
@@ -103,6 +104,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "INSERT INTO " + DaoUtility.getTableName(obj) + DaoUtility.getListColumns(obj)+" VALUES " + getValues(con, name, obj);
@@ -124,6 +126,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "DELETE FROM " + DaoUtility.getTableName(obj);
@@ -139,6 +142,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(obj) + " = '" + DaoUtility.getPrimaryKeyGetMethod(obj).invoke(obj, (Object[]) null) + "'";
@@ -152,6 +156,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "DELETE FROM " + DaoUtility.getTableName(obj) + " WHERE " + condition;
@@ -166,6 +171,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String condition = DaoUtility.getPrimaryKeyName(obj)  +" = '" + id +"'";
@@ -206,6 +212,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "UPDATE "+ DaoUtility.getTableName(obj) +" SET " + updatedValues(obj);
@@ -223,6 +230,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj); 
@@ -237,6 +245,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj) + " ORDER BY " + DaoUtility.getPrimaryKeyName(obj) +  " " + pageable.getOrder() + " " 
@@ -256,6 +265,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + tableName;
@@ -272,6 +282,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj) + " WHERE " + DaoUtility.getPrimaryKeyName(obj) + " = '" + id + "'";
@@ -289,6 +300,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             
@@ -306,6 +318,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String query = "SELECT * FROM " + DaoUtility.getTableName(obj) + " WHERE " + condition;
@@ -322,6 +335,7 @@ public class GenericDao{
         try{      
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             Statement stmt =  con.connect().createStatement();
@@ -335,6 +349,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             List<T> list = new ArrayList<>();
@@ -394,6 +409,7 @@ public class GenericDao{
         try{
             if(con == null){
                 con = new DbConnection();
+                con.init();
                 state = true;
             }
             String[] detail = DaoUtility.getPrimaryKeyDetails(obj);

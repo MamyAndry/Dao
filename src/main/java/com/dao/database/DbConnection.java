@@ -154,7 +154,9 @@ public class DbConnection {
         getConnection().commit();
     }
 
-    public DbConnection() throws Exception{
-        init();
-    }
+    // public DbConnection() throws Exception{
+    //     init();
+    // }
+
+    public DbConnection() {}
 }
