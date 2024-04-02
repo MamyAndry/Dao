@@ -1,7 +1,7 @@
 package com.dao.database;
 
 public class Pageable {
-    String order;
+    String order = "ASC";
     int length;
     int start;
     
@@ -9,6 +9,11 @@ public class Pageable {
 
     public Pageable(String order, int length, int start) {
         this.setOrder(order);
+        this.setLength(length);
+        this.setStart(start);
+    }
+
+    public Pageable(int length, int start) {
         this.setLength(length);
         this.setStart(start);
     }
