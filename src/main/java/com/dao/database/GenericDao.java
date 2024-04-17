@@ -390,7 +390,7 @@ public class GenericDao{
     
     public static <T> List<T> fetch(DbConnection con, String query, Object obj) throws Exception{
         List<T> list = new ArrayList<>();
-        Connection connection = con.connect();
+        Connection connection = con.getConnection();
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query);
         List<Field> fields = DaoUtility.getAllColumnFields(obj);
