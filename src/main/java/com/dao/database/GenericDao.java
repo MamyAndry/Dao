@@ -197,7 +197,7 @@ public class GenericDao{
                 if(fk.foreignType() == ForeignType.OneToMany || fk.foreignType() == ForeignType.OneToOne){
 //                    BddObject temp = (BddObject) method.invoke(obj, (Object[]) null);
 //                    values += "'" + DaoUtility.getPrimaryKeyGetMethod(temp).invoke(temp, (Object[]) null) + "', ";
-                    BddObject temp = (BddObject) method.invoke(obj, (Object[]) null);
+                    Object temp = method.invoke(obj, (Object[]) null);
                     query += fk.mappedBy() + " = '" + DaoUtility.getPrimaryKeyGetMethod(temp).invoke(temp, (Object[]) null) + "', ";
                 
                 }
